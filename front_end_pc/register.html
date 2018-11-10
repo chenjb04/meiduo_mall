@@ -6,6 +6,7 @@
 	<link rel="stylesheet" type="text/css" href="css/reset.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<script type="text/javascript" src="js/vue-2.5.16.js"></script>
+    <script type="text/javascript" src="js/axios-0.18.0.min.js"></script>
 </head>
 <body>
 	<div class="register_con">
@@ -46,7 +47,7 @@
 					<li>
 						<label>图形验证码:</label>
 						<input type="text" v-model="image_code" @blur="check_image_code" name="pic_code" id="pic_code" class="msg_input">
-						<img src="images/pic_code.jpg" alt="图形验证码" class="pic_code">
+						<img :src="image_code_url" alt="图形验证码" class="pic_code">
 						<span v-show="error_image_code" class="error_tip">请填写图片验证码</span>
 					</li>
 					<li>
@@ -81,8 +82,8 @@
 			<span>|</span>
 			<a href="#">友情链接</a>		
 		</div>
-		<p>CopyRight © 2016 北京美多商业股份有限公司 All Rights Reserved</p>
-		<p>电话：010-****888    京ICP备*******8号</p>
+{#		<p>CopyRight © 2016 北京美多商业股份有限公司 All Rights Reserved</p>#}
+{#		<p>电话：010-****888    京ICP备*******8号</p>#}
 	</div>
 	<script type="text/javascript" src="js/register.js"></script>
 </body>
