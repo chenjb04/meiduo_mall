@@ -222,6 +222,11 @@ JWT_AUTH = {
 # 添加django自带的用户认证系统
 AUTH_USER_MODEL = 'users.User'
 
+# django认证后端
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
+
 # CORS
 CORS_ORIGIN_WHITELIST = (
     '127.0.0.1:8080',
