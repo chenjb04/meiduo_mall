@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-# Create your models here.
+from itsdangerous import TimedJSONWebSignatureSerializer
+from django.conf import settings
+
+from . import constants
 
 
 class User(AbstractUser):
@@ -16,3 +19,15 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def generate_send_sms_code_token(self):
+        """
+        生成发送短信验证码的access_token
+        :return:access_token
+        """
+        serializer = TimedJSONWebSignatureSerializer(settings.SECRET_KEY, constants.SEND_SMS_COKE_TOKEN_EXPIRES)
+        data = {
+            'mobile': self.mobile,
+        }
+        token = serializer.dumps(data)
+        return token.decode()

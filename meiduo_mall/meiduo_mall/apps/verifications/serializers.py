@@ -45,10 +45,11 @@ class CheckImageCodeSerializer(serializers.Serializer):
             raise serializers.ValidationError('图片验证码错误')
 
         # 通过类视图对象属性kwargs取出mobile
-        mobile = self.context['view'].kwargs['mobile']
-        send_flag = redis_conn.get('send_flag_%s' % mobile)
-        if send_flag:
-            raise serializers.ValidationError('发送短信次数过于频繁')
+        mobile = self.context['view'].kwargs.get('mobile')
+        if mobile:
+            send_flag = redis_conn.get('send_flag_%s' % mobile)
+            if send_flag:
+                raise serializers.ValidationError('发送短信次数过于频繁')
         return attrs
 
 
