@@ -76,4 +76,24 @@ class SMSCodeTokenView(GenericAPIView):
         })
 
 
+class PasswordTokenView(GenericAPIView):
+    """
+    获取修改密码的token
+    """
+    serializer_class = serializers.CheckSMSCodeSerializer
+
+    def get(self, request, account):
+        # 校检短信验证码
+        serializer = self.get_serializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        user = get_user_by_account(account)
+        if user is None:
+            return Response({'message': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
+        # 生成用于修改密码的access_token
+        access_token = user.generate_set_password_token()
+        return Response({
+            'user_id': user.id,
+            'access_token': access_token
+        })
+
 

@@ -47,4 +47,16 @@ class User(AbstractUser):
             mobile = data.get('mobile')
             return mobile
 
+    def generate_set_password_token(self):
+        """
+        生成用户修改密码的token
+        :return:
+        """
+        serializer = TimedJSONWebSignatureSerializer(settings.SECRET_KEY, constants.SET_PASSWORD_TOKEN_EXPIRES)
+        data = {
+            'user_id': self.id
+        }
+        token = serializer.dumps(data)
+        return token.decode()
+
 
