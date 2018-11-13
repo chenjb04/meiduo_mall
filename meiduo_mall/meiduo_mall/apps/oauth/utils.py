@@ -63,7 +63,8 @@ class OAuthQQ(object):
             raise QQAPIException('获取access_token异常')
         return access_token
 
-    def get_openid(self, access_token):
+    @staticmethod
+    def get_openid(access_token):
         """
          根据access_token向QQ服务器发起请求，获取openid
         :return: 
