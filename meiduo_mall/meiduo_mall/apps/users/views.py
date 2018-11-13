@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
@@ -125,6 +125,38 @@ class UserDetailView(RetrieveAPIView):
         :return:
         """
         return self.request.user
+
+
+class EmailView(UpdateAPIView):
+    """
+    保存邮箱
+    """
+    serializer_class = serializers.EmailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+class EmailVerifyView(APIView):
+    """
+    验证邮箱链接
+    """
+    def get(self, request):
+        # 获取token
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'message': '缺少token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 对token进行校验
+        result = User.check_email_verify_token(token)
+        if result:
+            return Response({'message': 'OK'})
+        else:
+            return Response({'message': '非法token'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 

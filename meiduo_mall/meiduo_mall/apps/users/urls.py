@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'accounts/(?P<account>\w{4,20})/password/token/$x', views.PasswordTokenView.as_view()),
     url(r'users/(?P<pk>\d+)/password/$', views.PasswordView.as_view()),
     url(r'^user/$', views.UserDetailView.as_view()),
+    url(r'^emails/$', views.EmailView.as_view()),
+    url(r'^emails/verification/$', views.EmailVerifyView.as_view()),
 ]

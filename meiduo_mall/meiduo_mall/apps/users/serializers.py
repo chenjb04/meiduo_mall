@@ -5,6 +5,7 @@ from rest_framework import serializers
 import re
 from django_redis import get_redis_connection
 from rest_framework_jwt.settings import api_settings
+from celery_tasks.email.tasks import send_verify_email
 
 from .models import User
 from .utils import get_user_by_account
@@ -174,6 +175,35 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'mobile', 'username', 'email', 'email_active']
 
+
+class EmailSerializer(serializers.ModelSerializer):
+    """
+    邮箱序列化器
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'email']
+        extra_kwargs = {
+            'email': {
+                'required': True
+            }
+        }
+
+    def update(self, instance, validated_data):
+        """
+        重写更新方法，添加发送邮件
+        :param instance:user对象
+        :param validated_data:
+        :return:
+        """
+        email = validated_data['email']
+        instance.email = email
+        instance.save()
+        # 生成激活链接
+        verify_url = instance.generate_email_verify_url()
+        # 发送邮件
+        send_verify_email.delay(email, verify_url)
+        return instance
 
 
 

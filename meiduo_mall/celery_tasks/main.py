@@ -11,7 +11,7 @@ if not os.getenv('DJANGO_SETTINGS_MODULE'):
 
 celery_app = Celery('meiduo')
 celery_app.config_from_object('celery_tasks.config')
-celery_app.autodiscover_tasks(['celery_tasks.sms'])
+celery_app.autodiscover_tasks(['celery_tasks.sms', 'celery_tasks.email'])
 # 开启celery方法
 # celery -A 应用路径 （.包路径） worker -l info -P eventlet
 # celery -A celery_tasks.main worker -l info -P eventlet
