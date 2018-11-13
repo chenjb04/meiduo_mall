@@ -255,3 +255,11 @@ EMAIL_HOST_PASSWORD = 'w2580473897'
 # 收件人看到的发件人
 EMAIL_FROM = 'cjb美多商城<chenjb04@163.com>'
 
+# DRF缓存扩展配置
+REST_FRAMEWORK_EXTENSIONS = {
+    # 缓存时间
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60*60*24,
+    # 缓存存储
+    'DEFAULT_USE_CACHE': 'default',
+}
+
