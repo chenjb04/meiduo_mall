@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework import mixins
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 import re
 
 from . import serializers
@@ -107,6 +109,22 @@ class PasswordView(mixins.UpdateModelMixin, GenericAPIView):
 
     def post(self, request, pk):
         return self.update(request, pk)
+
+
+class UserDetailView(RetrieveAPIView):
+    """
+    用户个人中心详细信息
+    """
+    serializer_class = serializers.UserDetailSerializer
+    # 通过认证才能访问接口的权限
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        """
+        返回请求的用户对象
+        :return:
+        """
+        return self.request.user
 
 
 

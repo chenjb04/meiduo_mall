@@ -165,3 +165,15 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    用户个人中心序列化器
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'mobile', 'username', 'email', 'email_active']
+
+
+
+

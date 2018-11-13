@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'accounts/(?P<account>\w{4,20})/sms/token/$', views.SMSCodeTokenView.as_view()),
     url(r'accounts/(?P<account>\w{4,20})/password/token/$x', views.PasswordTokenView.as_view()),
     url(r'users/(?P<pk>\d+)/password/$', views.PasswordView.as_view()),
+    url(r'^user/$', views.UserDetailView.as_view()),
 ]
