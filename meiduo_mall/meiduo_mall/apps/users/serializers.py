@@ -7,7 +7,7 @@ from django_redis import get_redis_connection
 from rest_framework_jwt.settings import api_settings
 from celery_tasks.email.tasks import send_verify_email
 
-from .models import User
+from .models import User, Address
 from .utils import get_user_by_account
 
 
@@ -204,6 +204,40 @@ class EmailSerializer(serializers.ModelSerializer):
         # 发送邮件
         send_verify_email.delay(email, verify_url)
         return instance
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    """
+    用户收货地址序列化器
+    """
+    province = serializers.StringRelatedField(read_only=True)
+    city = serializers.StringRelatedField(read_only=True)
+    district = serializers.StringRelatedField(read_only=True)
+    province_id = serializers.IntegerField(label='省ID', required=True)
+    city_id = serializers.IntegerField(label='市ID', required=True)
+    district_id = serializers.IntegerField(label='区ID', required=True)
+    mobile = serializers.RegexField(label='手机号', regex=r'^1[3-9]\d{9}$')
+
+    class Meta:
+        model = Address
+        exclude = ('user', 'is_deleted', 'create_time', 'update_time')
+
+    def create(self, validated_data):
+        """
+        保存
+        """
+        # Address模型类中有user属性，将user对象添加到模型类的创建参数中
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class AddressTitleSerializer(serializers.ModelSerializer):
+    """
+    地址标题
+    """
+    class Meta:
+        model = Address
+        fields = ('title',)
 
 
 
