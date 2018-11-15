@@ -2,7 +2,6 @@ var vm = new Vue({
     el: '#app',
     data: {
         host: host,
-
         image_code_id: '',
         image_code_url: '',
 
@@ -47,6 +46,7 @@ var vm = new Vue({
         this.generate_image_code();
     },
     methods: {
+
         // 生成uuid
         generate_uuid: function () {
             var d = new Date().getTime();
@@ -232,4 +232,5 @@ var vm = new Vue({
             }
         }
     },
+
 });
