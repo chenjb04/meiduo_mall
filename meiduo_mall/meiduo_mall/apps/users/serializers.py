@@ -9,6 +9,8 @@ from celery_tasks.email.tasks import send_verify_email
 
 from .models import User, Address
 from .utils import get_user_by_account
+from goods.models import SKU
+from . import constants
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -240,4 +242,35 @@ class AddressTitleSerializer(serializers.ModelSerializer):
         fields = ('title',)
 
 
+class AddUserHistorySerializer(serializers.Serializer):
+    """
+    用户浏览记录
+    """
+    sku_id = serializers.IntegerField(min_value=1)
+
+    @staticmethod
+    def validate_sku_id(value):
+        try:
+            SKU.objects.get(id=value)
+        except SKU.DoesNotExist:
+            raise serializers.ValidationError('sku id 不存在')
+        return value
+
+    def create(self, validated_data):
+        """
+        保存
+        :param validated_data:
+        :return:
+        """
+        user_id = self.context['request'].user.id
+        sku_id = validated_data['sku_id']
+
+        redis_conn = get_redis_connection('history')
+        pl = redis_conn.pipeline()
+        pl.lrem('history_%s' % user_id, 0, sku_id)
+        pl.lpush('history_%s' % user_id, sku_id)
+        pl.ltrim('history_%s' % user_id, 0, constants.USER_BROWSING_HISTORY_COUNTS_LIMIT-1)
+        pl.execute()
+
+        return validated_data
 

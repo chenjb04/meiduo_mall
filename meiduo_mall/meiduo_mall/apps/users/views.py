@@ -8,6 +8,7 @@ from rest_framework import mixins
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
+from django_redis import get_redis_connection
 import re
 
 from . import serializers
@@ -15,6 +16,8 @@ from .models import User
 from verifications.serializers import CheckImageCodeSerializer
 from .utils import get_user_by_account
 from . import constants
+from goods.models import SKU
+from goods.serializers import SKUSerializer
 
 
 class UsernameCountView(APIView):
@@ -236,6 +239,37 @@ class AddressViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericVi
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class UserHistoryView(mixins.CreateModelMixin, GenericAPIView):
+    """
+    用户浏览记录
+    """
+    serializer_class = serializers.AddUserHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+        保存
+        :param request:
+        :return:
+        """
+        return self.create(request)
+
+    def get(self, request):
+        user_id = request.user.id
+        redis_conn = get_redis_connection('history')
+        sku_id_list = redis_conn.lrange('history_%s' % user_id, 0, constants.USER_BROWSING_HISTORY_COUNTS_LIMIT)
+
+        sku_list = list()
+        for sku_id in sku_id_list:
+            sku = SKU.objects.get(id=sku_id)
+            sku_list.append(sku)
+        serializer = SKUSerializer(sku_list, many=True)
+        return Response(serializer.data)
+
+
+
 
 
 
