@@ -31,7 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['api.meiduo.site']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'django_crontab',
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
     'oauth.apps.OauthConfig',
@@ -67,7 +67,7 @@ ROOT_URLCONF = 'meiduo_mall.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,7 +81,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -145,7 +144,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -158,7 +156,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -260,7 +257,7 @@ EMAIL_FROM = 'cjb美多商城<chenjb04@163.com>'
 # DRF缓存扩展配置
 REST_FRAMEWORK_EXTENSIONS = {
     # 缓存时间
-    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60*60*24,
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60 * 24,
     # 缓存存储
     'DEFAULT_USE_CACHE': 'default',
 }
@@ -272,3 +269,11 @@ FDFS_BASE_URL = 'http://192.168.59.130:8888/'
 # 设置django文件存储为自定义文件存储
 DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.storage.FastDFSStorage'
 
+# 静态文件保存目录
+GENERATED_STATIC_HTML_FILES_DIR = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'front_end_pc')
+
+# 定时任务配置
+CRONJOBS = [
+    ('*/30 * * * *', 'contents.crons.generate_static_index_html', '>>' + os.path.join(os.path.dirname(BASE_DIR)), '/logs/crontab.log')
+]
+CRONTAB_COMMAND_PREFIX = 'LANG=zh_cn.UTF-8'
