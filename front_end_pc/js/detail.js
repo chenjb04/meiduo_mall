@@ -36,8 +36,8 @@ var vm = new Vue({
     mounted: function () {
         // 添加用户浏览历史记录
         this.get_sku_id();
-         if (this.user_id) {
-            axios.post(this.host+'/browse_histories/', {
+        if (this.user_id) {
+            axios.post(this.host + '/browse_histories/', {
                 sku_id: this.sku_id
             }, {
                 headers: {
@@ -79,7 +79,23 @@ var vm = new Vue({
         },
         // 添加购物车
         add_cart: function () {
-
+            axios.post(this.host + '/cart/', {
+                sku_id: parseInt(this.sku_id),
+                count: this.sku_count
+            }, {
+                headers: {
+                    'Authorization': 'JWT ' + this.token
+                },
+                responseType: 'json',
+                withCredentials: true
+            })
+                .then(response => {
+                    this.cart_total_count += response.data.count;
+                })
+                .catch(error => {
+                    alert(error.response.message);
+                    console.log(error.response.data);
+                })
         },
         // 获取购物车数据
         get_cart: function () {
