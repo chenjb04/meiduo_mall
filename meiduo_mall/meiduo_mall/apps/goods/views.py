@@ -3,6 +3,7 @@ from rest_framework_extensions.cache.mixins import ListCacheResponseMixin
 from rest_framework.filters import OrderingFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from drf_haystack.viewsets import HaystackViewSet
 
 from . import serializers
 from .models import SKU, GoodsCategory
@@ -51,3 +52,11 @@ class GoodCategoryView(APIView):
             'cat3': cat3.name,
 
         })
+
+
+class SKUSearchViewSet(HaystackViewSet):
+    """
+    SKU搜索
+    """
+    index_models = [SKU]
+    serializer_class = serializers.SKUIndexSerializer
