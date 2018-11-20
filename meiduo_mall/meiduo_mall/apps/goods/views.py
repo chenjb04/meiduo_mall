@@ -1,9 +1,11 @@
 from rest_framework.generics import ListAPIView
 from rest_framework_extensions.cache.mixins import ListCacheResponseMixin
 from rest_framework.filters import OrderingFilter
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from . import serializers
-from .models import SKU
+from .models import SKU, GoodsCategory
 from . import contants
 
 
@@ -31,3 +33,21 @@ class SKUListView(ListAPIView):
         category_id = self.kwargs['category_id']
         return SKU.objects.filter(category_id=category_id, is_launched=True)
 
+
+class GoodCategoryView(APIView):
+    """
+    商品分类
+    """
+    def get(self, request, pk):
+        # 获取三级分类对象
+        cat3 = GoodsCategory.objects.get(id=pk)
+        # 获取二级分类对象和一级分类对象
+        cat2 = cat3.parent
+        cat1 = cat2.parent
+
+        return Response({
+            'cat1': cat1.name,
+            'cat2': cat2.name,
+            'cat3': cat3.name,
+
+        })

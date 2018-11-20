@@ -12,9 +12,9 @@ var vm = new Vue({
         ordering: '-create_time', // 排序
         count: 0,  // 总数量
         skus: [], // 数据
-        cat1: {url: '', category: {name: '', id: ''}},  // 一级类别
-        cat2: {name: ''},  // 二级类别
-        cat3: {name: ''},  // 三级类别,
+        cat1: '',  // 一级类别
+        cat2: '',  // 二级类别
+        cat3: '',  // 三级类别,
         cart_total_count: 0, // 购物车总数量
         cart: [], // 购物车数据
         hots: [], // 热销商品
@@ -65,8 +65,18 @@ var vm = new Vue({
     mounted: function () {
         this.cat = this.get_query_string('cat');
         this.get_skus();
-
         this.get_hot_goods();
+        axios.get(this.host + '/categories/' + this.cat + '/', {
+            responseType: 'json'
+        })
+            .then(response => {
+                this.cat1 = response.data.cat1;
+                this.cat2 = response.data.cat2;
+                this.cat3 = response.data.cat3;
+            })
+            .catch(error => {
+                console.log(error.response.data)
+            });
     },
     methods: {
         logout() {

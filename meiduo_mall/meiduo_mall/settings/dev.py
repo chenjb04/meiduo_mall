@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_crontab',
+    'ckeditor',
+    'ckeditor_uploader',
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
     'oauth.apps.OauthConfig',
@@ -288,3 +290,13 @@ CRONJOBS = [
     ('*/30 * * * *', 'contents.crons.generate_static_index_html', '>>' + os.path.join(os.path.dirname(BASE_DIR)), '/logs/crontab.log')
 ]
 CRONTAB_COMMAND_PREFIX = 'LANG=zh_cn.UTF-8'
+
+# 富文本编辑器ckeditor配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',  # 工具条功能
+        'height': 300,  # 编辑器高度
+        # 'width': 300,  # 编辑器宽
+    },
+}
+CKEDITOR_UPLOAD_PATH = ''  # 上传图片保存路径，使用了FastDFS，所以此处设为''
