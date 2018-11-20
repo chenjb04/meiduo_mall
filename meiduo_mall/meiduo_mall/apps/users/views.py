@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from django_redis import get_redis_connection
 import re
+from rest_framework_jwt.views import ObtainJSONWebToken
 
 from . import serializers
 from .models import User
@@ -18,6 +19,7 @@ from .utils import get_user_by_account
 from . import constants
 from goods.models import SKU
 from goods.serializers import SKUSerializer
+from carts.utils import merge_cart_cookie_to_redis
 
 
 class UsernameCountView(APIView):
@@ -267,6 +269,28 @@ class UserHistoryView(mixins.CreateModelMixin, GenericAPIView):
             sku_list.append(sku)
         serializer = SKUSerializer(sku_list, many=True)
         return Response(serializer.data)
+
+
+class UserAuthorizationView(ObtainJSONWebToken):
+    """
+    用户登录认证实现
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        重写jwt post方法，对登录用户数据进行验证
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        response = super().post(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data.get('user') or request.user
+            response = merge_cart_cookie_to_redis(request, response, user)
+        return response
+
+
 
 
 
