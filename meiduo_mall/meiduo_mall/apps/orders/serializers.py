@@ -74,28 +74,39 @@ class SaveOrderSerializer(serializers.ModelSerializer):
                 cart = {}
                 for sku_id in cart_selected:
                     cart[int(sku_id)] = int(cart_redis[sku_id])
-                sku_obj_list = SKU.objects.filter(id__in=cart.keys())
+                # sku_obj_list = SKU.objects.filter(id__in=cart.keys())
                 # 遍历勾选要下单的商品数据
-                for sku in sku_obj_list:
+                sku_id_list = cart.keys()
+                for sku_id in sku_id_list:
                     # 判断商品库存
-                    if sku.stock < cart[sku.id]:
-                        # 事务回滚
-                        transaction.savepoint_rollback(save_id)
-                        raise serializers.ValidationError('商品库存不足')
-                    # 减少商品库存
-                    sku.stock -= cart[sku.id]
-                    sku.sales += cart[sku.id]
-                    sku.save()
+                    while True:
+                        sku = SKU.objects.get(id=sku_id)
+                        origin_stock = sku.stock
+                        origin_sales = sku.stock
+                        if sku.stock < cart[sku.id]:
+                            # 事务回滚
+                            transaction.savepoint_rollback(save_id)
+                            raise serializers.ValidationError('商品库存不足')
+                        # 减少商品库存
+                        # sku.stock -= cart[sku.id]
+                        # sku.sales += cart[sku.id]
+                        # sku.save()
+                        new_stock = origin_stock - cart[sku.id]
+                        new_sales = origin_sales + cart[sku.id]
+                        ret = SKU.objects.filter(id=sku.id, stock=origin_stock).update(stock=new_stock, sales=new_sales)
+                        if ret == 0:
+                            continue
 
-                    order.total_count += cart[sku.id]
-                    order.total_amount += (sku.price * cart[sku.id])
-                    # 保存
-                    OrderGoods.objects.create(
-                        order=order,
-                        sku=sku,
-                        count=cart[sku.id],
-                        price=sku.price
-                    )
+                        order.total_count += cart[sku.id]
+                        order.total_amount += (sku.price * cart[sku.id])
+                        # 保存
+                        OrderGoods.objects.create(
+                            order=order,
+                            sku=sku,
+                            count=cart[sku.id],
+                            price=sku.price
+                        )
+                        break
                 order.save()
             except serializers.ValidationError:
                 raise
