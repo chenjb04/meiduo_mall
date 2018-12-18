@@ -8,11 +8,13 @@ from rest_framework import mixins
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.generics import ListAPIView
 from django_redis import get_redis_connection
 import re
 from rest_framework_jwt.views import ObtainJSONWebToken
 
 from . import serializers
+from orders.serializers import DisplaysOrderSerializers
 from .models import User
 from verifications.serializers import CheckImageCodeSerializer
 from .utils import get_user_by_account
@@ -20,6 +22,7 @@ from . import constants
 from goods.models import SKU
 from goods.serializers import SKUSerializer
 from carts.utils import merge_cart_cookie_to_redis
+from orders.models import OrderInfo, OrderGoods
 
 
 class UsernameCountView(APIView):
@@ -289,6 +292,31 @@ class UserAuthorizationView(ObtainJSONWebToken):
             user = serializer.validated_data.get('user') or request.user
             response = merge_cart_cookie_to_redis(request, response, user)
         return response
+
+
+class OrderListView(ListAPIView):
+    """
+    个人中心订单列表显示
+    """
+
+    serializer_class = DisplaysOrderSerializers
+    # queryset = OrderGoods.objects.all()
+
+    def get_queryset(self):
+        pass
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        queryset = OrderInfo.objects.filter(user_id=user.id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+
 
 
 

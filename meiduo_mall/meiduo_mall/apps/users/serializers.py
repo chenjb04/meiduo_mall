@@ -11,6 +11,7 @@ from .models import User, Address
 from .utils import get_user_by_account
 from goods.models import SKU
 from . import constants
+from orders.models import OrderInfo, OrderGoods
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -273,4 +274,15 @@ class AddUserHistorySerializer(serializers.Serializer):
         pl.execute()
 
         return validated_data
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    """
+    订单序列化器
+    """
+
+    class Meta:
+        model = OrderGoods
+        fields = '__all__'
+        depth = 1
 

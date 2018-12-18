@@ -44,10 +44,9 @@
         <a href="index.html" class="logo fl"><img src="images/logo.png"></a>
         <div class="search_wrap fl">
             <form method="get" action="/search.html" class="search_con">
-               <form method="get" action="/search.html" class="search_con">
-    <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
-    <input type="submit" class="input_btn fr" name="" value="搜索">
-</form>
+                <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+                <input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
             </form>
             <ul class="search_suggest fl">
                 <li><a href="#">索尼微单</a></li>
@@ -57,30 +56,15 @@
             </ul>
         </div>
 
-        <div class="guest_cart fr">
+        <div @mouseenter="get_cart()" class="guest_cart fr">
             <a href="#" class="cart_name fl">我的购物车</a>
-            <div class="goods_count fl" id="show_count">15</div>
+            <div class="goods_count fl" id="show_count">[[cart_total_count]]</div>
 
             <ul class="cart_goods_show">
-                <li>
-                    <img src="images/goods/goods001.jpg" alt="商品图片">
-                    <h4>商品名称手机</h4>
-                    <div>4</div>
-                </li>
-                <li>
-                    <img src="images/goods/goods002.jpg" alt="商品图片">
-                    <h4>商品名称手机</h4>
-                    <div>5</div>
-                </li>
-                <li>
-                    <img src="images/goods/goods003.jpg" alt="商品图片">
-                    <h4>商品名称手机</h4>
-                    <div>6</div>
-                </li>
-                <li>
-                    <img src="images/goods/goods003.jpg" alt="商品图片">
-                    <h4>商品名称手机</h4>
-                    <div>6</div>
+                <li v-for="sku in cart">
+                    <img :src="sku.default_image_url" alt="商品图片">
+                    <h4>[[sku.name]]</h4>
+                    <div>[[sku.count]]</div>
                 </li>
             </ul>
         </div>
@@ -124,11 +108,11 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="http://shouji.jd.com">手机</a>
+                            <a href="">手机</a>
                         
-                            <a href="#">相机</a>
+                            <a href="">相机</a>
                         
-                            <a href="#">数码</a>
+                            <a href="">数码</a>
                         
                     </div>
                     <div class="level2">
@@ -272,11 +256,11 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">电脑</a>
+                            <a href="">电脑</a>
                         
-                            <a href="#">办公</a>
+                            <a href="">办公</a>
                         
-                            <a href="#">家用电器</a>
+                            <a href="">家用电器</a>
                         
                     </div>
                     <div class="level2">
@@ -460,13 +444,13 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">家居</a>
+                            <a href="">家居</a>
                         
-                            <a href="#">家具</a>
+                            <a href="">家具</a>
                         
-                            <a href="#">家装</a>
+                            <a href="">家装</a>
                         
-                            <a href="#">厨具</a>
+                            <a href="">厨具</a>
                         
                     </div>
                     <div class="level2">
@@ -632,13 +616,13 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">男装</a>
+                            <a href="">男装</a>
                         
-                            <a href="#">女装</a>
+                            <a href="">女装</a>
                         
-                            <a href="#">童装</a>
+                            <a href="">童装</a>
                         
-                            <a href="#">内衣</a>
+                            <a href="">内衣</a>
                         
                     </div>
                     <div class="level2">
@@ -767,13 +751,13 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">女鞋</a>
+                            <a href="">女鞋</a>
                         
-                            <a href="#">箱包</a>
+                            <a href="">箱包</a>
                         
-                            <a href="#">钟表</a>
+                            <a href="">钟表</a>
                         
-                            <a href="#">珠宝</a>
+                            <a href="">珠宝</a>
                         
                     </div>
                     <div class="level2">
@@ -904,11 +888,11 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">男鞋</a>
+                            <a href="">男鞋</a>
                         
-                            <a href="#">运动</a>
+                            <a href="">运动</a>
                         
-                            <a href="#">户外</a>
+                            <a href="">户外</a>
                         
                     </div>
                     <div class="level2">
@@ -1081,11 +1065,11 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">房产</a>
+                            <a href="">房产</a>
                         
-                            <a href="#">汽车</a>
+                            <a href="">汽车</a>
                         
-                            <a href="#">汽车用品</a>
+                            <a href="">汽车用品</a>
                         
                     </div>
                     <div class="level2">
@@ -1212,9 +1196,9 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">母婴</a>
+                            <a href="">母婴</a>
                         
-                            <a href="#">玩具乐器</a>
+                            <a href="">玩具乐器</a>
                         
                     </div>
                     <div class="level2">
@@ -1316,13 +1300,13 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">食品</a>
+                            <a href="">食品</a>
                         
-                            <a href="#">酒类</a>
+                            <a href="">酒类</a>
                         
-                            <a href="#">生鲜</a>
+                            <a href="">生鲜</a>
                         
-                            <a href="#">特产</a>
+                            <a href="">特产</a>
                         
                     </div>
                     <div class="level2">
@@ -1458,11 +1442,11 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">图书</a>
+                            <a href="">图书</a>
                         
-                            <a href="#">音像</a>
+                            <a href="">音像</a>
                         
-                            <a href="#">电子书</a>
+                            <a href="">电子书</a>
                         
                     </div>
                     <div class="level2">
@@ -1581,13 +1565,13 @@
                 <li>
                     <div class="level1">
                         
-                            <a href="#">机票</a>
+                            <a href="">机票</a>
                         
-                            <a href="#">酒店</a>
+                            <a href="">酒店</a>
                         
-                            <a href="#">旅游</a>
+                            <a href="">旅游</a>
                         
-                            <a href="#">生活</a>
+                            <a href="">生活</a>
                         
                     </div>
                     <div class="level2">

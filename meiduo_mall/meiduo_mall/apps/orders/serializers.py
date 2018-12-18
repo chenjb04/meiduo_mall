@@ -122,3 +122,30 @@ class SaveOrderSerializer(serializers.ModelSerializer):
             pl.srem('cart_selected_%s' % user.id, *cart_selected)
             pl.execute()
             return order
+
+
+class DisplayOrderSerializer(serializers.ModelSerializer):
+    # 展示订单列表的序列化器
+    class Meta:
+        model = SKU
+        fields = '__all__'
+        # fields=('name','price','default_image_url')
+        # read_only_fields = ('name','price','default_image_url')
+
+
+class DisplayOrderSerializers(serializers.ModelSerializer):
+    # 嵌套
+    sku = DisplayOrderSerializer()
+
+    class Meta:
+        model = OrderGoods
+        fields = '__all__'
+
+
+class DisplaysOrderSerializers(serializers.ModelSerializer):
+    # 嵌套
+    skus = DisplayOrderSerializers(many=True)
+
+    class Meta:
+        model = OrderInfo
+        fields = '__all__'

@@ -5,15 +5,39 @@ var vm = new Vue({
         user_id: sessionStorage.user_id || localStorage.user_id,
         token: sessionStorage.token || localStorage.token,
         username: '',
-        mobile: '',
-        email: '',
-        email_active: false,
-        set_email: false,
-        send_email_btn_disabled: false,
-        send_email_tip: '重新发送验证邮件',
-        email_error: false,
-        histories:[]
+        page: 1, // 当前页数
+        page_size: 5, // 每页数量
+        orders: [],
+        sku: [],
+        create_time: '',
+        count: 0,
+        price: '',
+        ORDER_STATUS_ENUM: {
+            1: "去支付",
+            2: "待发货",
+            3: "待收货",
+            4: "去评价",
+            5: "已完成",
+            6: "已取消",
+        },
+        PAY_METHOD_ENUM: {
+            1: "货到付款",
+            2: "支付宝",
+        }
     },
+    filters: {
+        formatDate: function (val) {
+            var value = new Date(val);
+            var year = value.getFullYear();
+            var month = padDate(value.getMonth() + 1);
+            var day = padDate(value.getDate());
+            var hour = padDate(value.getHours());
+            var minutes = padDate(value.getMinutes());
+            var seconds = padDate(value.getSeconds());
+            return year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds;
+        }
+    },
+
     computed: {
         total_page: function () {  // 总页数
             return Math.ceil(this.count / this.page_size);
@@ -58,6 +82,7 @@ var vm = new Vue({
         }
     },
     mounted: function () {
+        this.get_orders();
         // 判断用户的登录状态
         if (this.user_id && this.token) {
             axios.get(this.host + '/user/', {
@@ -104,31 +129,71 @@ var vm = new Vue({
             localStorage.clear();
             location.href = '/login.html';
         },
-        // 保存email
-        save_email: function () {
-            var re = /^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$/;
-            if (re.test(this.email)) {
-                this.email_error = false;
-            } else {
-                this.email_error = true;
-                return;
+
+        // 订单操作
+        on_operate_order: function (index) {
+            var order = this.orders[index];
+            // 去支付
+            if (order.status===1) {
+                axios.get(this.host+'/orders/'+order.order_id+'/payment/', {
+                        headers: {
+                            'Authorization': 'JWT ' + this.token
+                        },
+                        responseType: 'json'
+                    })
+                    .then(response => {
+                        // 跳转到支付宝支付
+                        location.href = response.data.alipay_url;
+                    })
+                    .catch(error => {
+                        console.log(error.response.data);
+                    })
             }
-            axios.put(this.host + '/emails/',
-                {email: this.email},
-                {
-                    headers: {
-                        'Authorization': 'JWT ' + this.token
-                    },
-                    responseType: 'json'
-                })
+            // 去评价
+            else if (order.status === 4) {
+                location.href = '/goods_judge.html?order_id=' + order.order_id;
+            }
+        },
+
+        get_orders: function () {
+            axios.get(this.host + '/orders_list/', {
+                headers: {
+                    'Authorization': 'JWT ' + this.token
+                },
+                params: {
+                    page: this.page,
+                    page_size: this.page_size,
+                },
+                responseType: 'json'
+            })
                 .then(response => {
-                    this.set_email = false;
-                    this.send_email_btn_disabled = true;
-                    this.send_email_tip = '已发送验证邮件'
+                    this.orders = response.data.results;
+                    console.log(this.orders);
+                    this.count = response.data.count;
+                    for (var i = 0; i < this.orders.length; i++) {
+                        for (var j = 0; j < this.orders[i].skus.length; j++) {
+                            var order = this.orders[i];
+                            var name = order.skus[j].sku.name;
+                            if (name.length >= 25) {
+                                this.orders[i].skus[j].sku.name = name.substring(0, 25) + '...';
+                            }
+                            this.orders[i].skus[j].amount = (parseFloat(order.skus[j].price) * order.skus[j].count).toFixed(2);
+                            this.orders[i].status_name = this.ORDER_STATUS_ENUM[order.status];
+                            this.orders[i].pay_method_name = this.PAY_METHOD_ENUM[order.pay_method];
+                        }
+                    }
                 })
                 .catch(error => {
-                    alert(error.data);
-                });
-        }
-    }
+                    console.log(error.response.data);
+                })
+        },
+        // 点击页数
+        on_page: function (num) {
+            if (num != this.page) {
+                this.page = num;
+                this.get_orders();
+            }
+        },
+    },
+
 });
