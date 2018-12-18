@@ -137,8 +137,19 @@ var vm = new Vue({
                 })
         },
         // 获取商品评价信息
-        get_comments: function () {
-
+        get_comments: function() {
+            axios.get(this.host + '/skus/' + this.sku_id + '/comments/', {
+                responseType: 'json'
+            })
+                .then(response => {
+                    this.comments = response.data;
+                    for (var i = 0; i < this.comments.length; i++) {
+                        this.comments[i].score_class = this.score_classes[this.comments[i].score];
+                    }
+                })
+                .catch(error => {
+                    console.log(error.response.data);
+                })
         }
     }
 });

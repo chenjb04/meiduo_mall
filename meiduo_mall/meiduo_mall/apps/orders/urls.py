@@ -9,4 +9,7 @@ from . import views
 urlpatterns = [
     url(r'orders/settlement/$', views.OrderSettlementView.as_view()),
     url(r'orders/$', views.SaveOrderView.as_view()),
+    url(r'orders/(?P<pk>\d+)/uncommentgoods/$', views.UncommentGoodsView.as_view()),
+    url(r'orders/\d+/comments/$', views.CommentsView.as_view()),
+    url(r'skus/(?P<pk>\d+)/comments/$', views.SKUSCommentsView.as_view()),
 ]

@@ -72,7 +72,7 @@
 							<td width="55%">
 								<ul class="order_goods_list clearfix" v-for="order_sku in order.skus">
 									<li class="col01"><img :src="order_sku.sku.default_image_url"></li>
-									<li class="col02">{{ order_sku.sku.name }}<em>{{order_sku.price }}元</em></li>
+									<li class="col02"><a :href="'goods/' + order_sku.sku.id + '.html'" >{{ order_sku.sku.name }}</a><em>{{order_sku.price }}元</em></li>
 									<li class="col03">{{ order_sku.count }}</li>
 									<li class="col04">{{ order_sku.amount }}元</li>
 								</ul>

@@ -18,3 +18,4 @@ class OrderAdmin(object):
 
 
 xadmin.site.register(models.OrderInfo, OrderAdmin)
+xadmin.site.register(models.OrderGoods)

@@ -10,6 +10,7 @@ from django_redis import get_redis_connection
 from carts.serializers import CartSKUSerializer
 from .models import OrderInfo, OrderGoods
 from goods.models import SKU
+from users.models import User
 
 
 class OrderSettlementSerializer(serializers.Serializer):
@@ -149,3 +150,90 @@ class DisplaysOrderSerializers(serializers.ModelSerializer):
     class Meta:
         model = OrderInfo
         fields = '__all__'
+
+
+class UncommentSKUSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = SKU
+        fields = '__all__'
+
+
+class UncommentGoodsSerializers(serializers.ModelSerializer):
+    sku = UncommentSKUSerializers()
+
+    class Meta:
+        model = OrderGoods
+        fields = '__all__'
+
+
+class CommentsSerializers(serializers.ModelSerializer):
+    """验证获取的数据"""
+    order = serializers.IntegerField()
+    sku = serializers.IntegerField()
+    comment = serializers.CharField()
+    score = serializers.IntegerField()
+    is_anonymous = serializers.BooleanField()
+
+    class Meta:
+        model = OrderGoods
+        fields = ('order', 'sku', 'comment', 'is_anonymous', 'score', 'sku')
+
+    def validate(self, attrs):
+        order_id = int(attrs['order'])
+        order = OrderGoods.objects.filter(order_id=order_id, is_commented=False)
+        if not order:
+            raise serializers.ValidationError('订单不存在')
+        sku = SKU.objects.filter(id=attrs['sku'])
+        if not sku:
+            raise serializers.ValidationError('商品不存在')
+        return attrs
+
+    # 使用事物装饰器
+    @transaction.atomic
+    def create(self, validated_data):
+        order_id = validated_data['order']
+        sku_id = validated_data['sku']
+        orders = OrderGoods.objects.get(order_id=order_id, sku_id=sku_id, is_commented=0)
+        sku = SKU.objects.get(id=sku_id)
+        sku.comments += 1
+        sku.save()
+
+        # 更新数据
+        orders.comment = validated_data['comment']
+        orders.score = validated_data['score']
+        orders.is_anonymous = validated_data['is_anonymous']
+        orders.is_commented = 1
+
+        orders.save()
+        count = OrderGoods.objects.filter(order_id=order_id, is_commented=0).count()
+        if count == 0:
+            try:
+                orderinfo = OrderInfo.objects.get(order_id=order_id)
+                orderinfo.status = 5
+                orderinfo.save()
+            except:
+                raise serializers.ValidationError('订单状态修改失败')
+        return validated_data
+
+
+class SKUSCommentsUserSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username',)
+        extra_kwargs = {
+            'username': {
+                'readonly': True
+            }
+        }
+
+
+class SKUSCommentsSerializers(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+
+    def get_username(self, obj):
+        pass
+    # username = SKUSCommentsUserSerializers()
+
+    class Meta:
+        model = OrderGoods
+        fields = ('username', 'score', 'comment')
